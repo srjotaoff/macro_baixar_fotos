@@ -7,7 +7,7 @@ Para utiliza-la, instale os seguintes quisitos no computador:
 Windows:
 -Python: obtido no site oficial do Python
 -PIP: execute no terminal o seguinte comando: pip install --upgrade pip
--Bibliotecas: execute no terminal o seguinte comando: pip install playwrigth
+-Bibliotecas: execute no terminal o seguinte comando: pip install playwrigth && pip install tk
 -Dependencias do Playwright: execute no terminal o seguinte comando: python -m playwright install
 
 Com tudo instalado, adicione em um arquivo ".txt", todos os codigos EAN dos produtos que deseja buscar fotos.
