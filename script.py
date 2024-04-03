@@ -5,11 +5,23 @@ import time
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
+
+ttl_ls = int(0)
+ttl_ft = int(0)
+ttl_ft_sucesso = int(0)
+ttl_ft_erro = int(0)
+
+
 input ('Selecione o arquivo .txt com a lista de codigos de barra: ')
 Tk().withdraw()
 local = askopenfilename()
 print(f'\n{local}\n')
+
 arquivo = open(local,'r')
+for linha in arquivo:
+	ttl_ls = (ttl_ls + 1)
+arquivo.close()
+
 
 playwright = sync_playwright().start()
 navegador = playwright.chromium.launch(headless = False)
@@ -17,10 +29,34 @@ navegador = playwright.chromium.launch(headless = False)
 print('\nIniciando instancia web - - - BLUESOFT\n')
 pagina = navegador.new_page()
 
-ttl_ft = int(0)
-ttl_ft_sucesso = int(0)
-ttl_ft_erro = int(0)
 
+def eanpictures(linha):
+	try:
+		linha = linha.rstrip()
+		pagina.goto(f'http://www.eanpictures.com.br:9000/api/gtin/{linha}')
+		time.sleep(1)
+
+		if pagina.query_selector('xpath=/html/body/b') is not None:
+			print(f'{linha} - nenhuma foto encontrada para o produto no servidor da EAN PICTURES!')
+			time.sleep(1)
+			return(False)
+		
+		else:
+			pagina.locator('xpath=/html/body/img').screenshot(path = f'{linha}.png')
+			print(f'{linha} - foto do produto baixada com sucesso pelo servifor da EAN PICTURES!')
+			time.sleep(1)
+			return(True)
+
+	except TypeError:
+		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da EAN PICTURES!')
+		time.sleep(1)
+		return(False)
+
+	except PlaywrightTimeoutError:
+		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da EAN PICTURES!')
+		time.sleep(1)
+		return(False)
+	
 
 def marsil(linha):
 	try:
@@ -46,6 +82,34 @@ def marsil(linha):
 
 	except PlaywrightTimeoutError:
 		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da MARSIL!')
+		time.sleep(1)
+		return(False)
+	
+
+def maxxi(linha):
+	try:
+		linha = linha.rstrip()
+		pagina.goto(f'https://maxxieconomica.com/storage/photos/1/Products/ean/{linha}.jpg')
+		time.sleep(1)
+
+		if pagina.locator('xpath=/html/head/title').text_content() == 'Maxxi Econômica || DASHBOARD' :
+			print(f'{linha} - nenhuma foto encontrada para o produto no servidor da MAXXI!')
+			time.sleep(1)
+			return(False)
+		
+		else:
+			pagina.locator('xpath=/html/body/img').screenshot(path = f'{linha}.png')
+			print(f'{linha} - foto do produto baixada com sucesso pelo servifor da MAXXI!')
+			time.sleep(1)
+			return(True)
+
+	except TypeError:
+		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da MAXXI!')
+		time.sleep(1)
+		return(False)
+
+	except PlaywrightTimeoutError:
+		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da MAXXI!')
 		time.sleep(1)
 		return(False)
 
@@ -78,71 +142,35 @@ def cosmos(linha):
 		return(False)
 
 
-def google(linha):
-	try:
-		linha = linha.rstrip()
-
-		pagina.goto(f'https://www.google.com/search?q={linha}&tbm=isch&hl=pt-BR&tbs=isz:l&rlz=1C1GCEB_enBR1083BR1083&sa=X&ved=0CAIQpwVqFwoTCLjXnpz434QDFQAAAAAdAAAAABAC&biw=1519&bih=761')
-		time.sleep(1)
-
-		pagina.locator('xpath=/html/body/div[2]/c-wiz/div[3]/div[1]/div/div/div/div/div[1]/div[1]/span/div[1]/div[1]/div[1]/a[1]/div[1]/img').click()
-		time.sleep(2.5)
-
-		try:
-			metodo_ft_direto = 'xpath=/html/body/div[2]/c-wiz/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/div[3]/div[1]/a/img[1]'
-			metodo_gt_grid = 'xpath=/html/body/div[2]/c-wiz/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/c-wiz/c-wiz/c-wiz/c-wiz[2]/c-wiz/div/scrolling-carousel/div[1]/span/div[1]/div/img[1]'
-
-			if pagina.query_selector(metodo_ft_direto) is not None:
-				metodo = metodo_ft_direto
-
-			elif pagina.query_selector(metodo_gt_grid) is not None:
-				metodo = metodo_gt_grid
-
-			else:
-				return(False)
-
-			url_img = pagina.locator(metodo).get_attribute('src')
-
-			pagina.goto(url_img)
-			pagina.locator('xpath=/html/body/img').screenshot(path = f'{linha}.png')
-			print(f'{linha} - foto do produto baixada com sucesso pelo servifor da GOOGLE!')
-			time.sleep(1)
-			return(True)
-
-		except PlaywrightTimeoutError:
-			print(f'{linha} - nenhuma foto encontrada para o produto no servidor da GOOGLE!')
-			time.sleep(1)
-			return(False)
-
-	except TypeError:
-		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da GOOGLE!')
-		time.sleep(1)
-		return(False)
-
-	except PlaywrightTimeoutError:
-		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da GOOGLE!')
-		time.sleep(1)
-		return(False)
-
+arquivo = open(local,'r')
 
 for linha in arquivo:
-	
-	if marsil(linha) is True:
+	if eanpictures(linha) is True:
 		ttl_ft = (ttl_ft + 1)
 		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
+		print(f'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - PROGRESSO : {ttl_ft} de {ttl_ls} / {round(((ttl_ft / ttl_ls) * 100),2)} %')
+
+	elif marsil(linha) is True:
+		ttl_ft = (ttl_ft + 1)
+		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
+		print(f'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - PROGRESSO : {ttl_ft} de {ttl_ls} / {round(((ttl_ft / ttl_ls) * 100),2)} %')
 	
+	elif maxxi(linha) is True:
+		ttl_ft = (ttl_ft + 1)
+		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
+		print(f'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - PROGRESSO : {ttl_ft} de {ttl_ls} / {round(((ttl_ft / ttl_ls) * 100),2)} %')
+
 	elif cosmos(linha) is True:
 		ttl_ft = (ttl_ft + 1)
 		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
-
-	elif google(linha) is True:
-		ttl_ft = (ttl_ft + 1)
-		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
-
+		print(f'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - PROGRESSO : {ttl_ft} de {ttl_ls} / {round(((ttl_ft / ttl_ls) * 100),2)} %')
+		
 	else:
 		ttl_ft = (ttl_ft + 1)
 		ttl_ft_erro = (ttl_ft_erro + 1)
+		print(f'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - PROGRESSO : {ttl_ft} de {ttl_ls} / {round(((ttl_ft / ttl_ls) * 100),2)} %')
 
 arquivo.close()
+
 
 print(f'\nBusca finalizada! {ttl_ft_sucesso} fotos foram baixadas do total de {ttl_ft} fotos solicitadas!\n')
