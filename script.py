@@ -140,7 +140,26 @@ def cosmos(linha):
 		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da BLUESOFT!')
 		time.sleep(1)
 		return(False)
+	
+def google(linha):
+	try:
+		linha = linha.rstrip()
+		pagina.goto(f'https://www.google.com.br/search?q={linha}&tbm=isch')
+		pagina.locator('xpath=/html/body/div[3]/div/div[15]/div/div[2]/div[2]/div/div/div/div/div[1]/div/div/div[1]/div[2]/h3/a/div/div/div/g-img/img').click()
+		pagina.goto(pagina.locator('xpath=/html/body/div[5]/div/div/div/div/div/div/c-wiz/div/div[2]/div[2]/div/div[2]/c-wiz/div/div[3]//img').first.get_attribute('src'))
+		pagina.locator('xpath=/html/body/img').screenshot(path = f'{linha}.png')
 
+		print(f'{linha} - foto do produto baixada com sucesso pelo servifor da GOOGLE!')
+
+	except TypeError:
+		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da GOOGLE!')
+		time.sleep(1)
+		return(False)
+
+	except PlaywrightTimeoutError:
+		print(f'{linha} - nenhuma foto encontrada para o produto no servidor da GOOGLE!')
+		time.sleep(1)
+		return(False)
 
 arquivo = open(local,'r')
 
@@ -154,7 +173,7 @@ for linha in arquivo:
 		ttl_ft = (ttl_ft + 1)
 		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
 		print(f'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - PROGRESSO : {ttl_ft} de {ttl_ls} / {round(((ttl_ft / ttl_ls) * 100),2)} %')
-	
+
 	elif maxxi(linha) is True:
 		ttl_ft = (ttl_ft + 1)
 		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
@@ -164,7 +183,12 @@ for linha in arquivo:
 		ttl_ft = (ttl_ft + 1)
 		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
 		print(f'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - PROGRESSO : {ttl_ft} de {ttl_ls} / {round(((ttl_ft / ttl_ls) * 100),2)} %')
-		
+
+	elif google(linha) is True:
+		ttl_ft = (ttl_ft + 1)
+		ttl_ft_sucesso = (ttl_ft_sucesso + 1)
+		print(f'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - PROGRESSO : {ttl_ft} de {ttl_ls} / {round(((ttl_ft / ttl_ls) * 100),2)} %')
+
 	else:
 		ttl_ft = (ttl_ft + 1)
 		ttl_ft_erro = (ttl_ft_erro + 1)
