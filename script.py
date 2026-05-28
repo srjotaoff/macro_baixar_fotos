@@ -26,7 +26,6 @@ arquivo.close()
 playwright = sync_playwright().start()
 navegador = playwright.chromium.launch(headless = False)
 
-print('\nIniciando instancia web - - - BLUESOFT\n')
 pagina = navegador.new_page()
 
 
